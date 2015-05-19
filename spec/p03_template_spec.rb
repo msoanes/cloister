@@ -1,9 +1,9 @@
 require 'webrick'
-require_relative '../lib/phase3/controller_base'
+require 'controller_base'
 
-describe Phase3::ControllerBase do
+describe Monastery::ControllerBase do
   before(:all) do
-    class CatsController < Phase3::ControllerBase
+    class CatsController < Monastery::ControllerBase
       def index
         @cats = ["GIZMO"]
       end

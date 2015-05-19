@@ -1,6 +1,6 @@
 require 'webrick'
-require_relative '../lib/phase6/controller_base'
-require_relative '../lib/phase6/router'
+require 'controller_base'
+require 'router'
 
 
 # http://www.ruby-doc.org/stdlib-2.0/libdoc/webrick/rdoc/WEBrick.html
@@ -35,7 +35,7 @@ class Cats2Controller < Phase6::ControllerBase
   end
 end
 
-router = Phase6::Router.new
+router = Monastery::Router.new
 router.draw do
   get Regexp.new("^/cats$"), Cats2Controller, :index
   get Regexp.new("^/cats/(?<cat_id>\\d+)/statuses$"), StatusesController, :index
