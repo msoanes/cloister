@@ -1,7 +1,9 @@
 require_relative 'route'
+require_relative 'route_resourcable'
 
 module Monastery
   class Router
+    include RouteResourcable
     attr_reader :routes
 
     def initialize
@@ -29,6 +31,18 @@ module Monastery
     def run(req, res)
       route = match(req)
       route ? route.run(req, res) : res.status = 404
+    end
+
+    def display_routes
+      @routes.each do |route|
+        puts [
+          "Action:     #{route.action_name}",
+          "Pattern:    #{route.pattern.source}",
+          "Controller: #{route.controller_class.name}",
+          "Method:     #{route.http_method}",
+          '=' * 20
+        ].join("\n\r")
+      end
     end
   end
 end
