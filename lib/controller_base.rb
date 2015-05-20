@@ -18,6 +18,16 @@ module Monastery
       @req, @res, @params = req, res, Params.new(req, route_params)
     end
 
+    def button_to(text, uri, options = nil)
+      options ||= { method: 'get' }
+      <<-html
+<form action="#{uri}" method="get">
+  <input type="submit" value="#{text}">
+</form>
+      html
+
+    end
+
     def already_built_response?
       @already_built_response
     end
@@ -28,11 +38,17 @@ module Monastery
       render unless already_built_response?
     end
 
+    def link_to(text, uri)
+      "<a href=\"#{url}\">#{text}</a>"
+    end
+
     def redirect_to(url)
       res.status = 302
       res.header["location"] = url
       render_content("", 'text/html')
+      flash.store_flash
       session.store_session(res)
+      @already_built_response = true
     end
 
     def render(template_name)
@@ -48,9 +64,9 @@ module Monastery
       raise if already_built_response?
       res.body = content
       res.content_type = content_type
-      @already_built_response = true
       session.store_session(res)
       flash.store_flash(res)
+      @already_built_response = true
     end
 
     def session
