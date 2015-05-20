@@ -4,9 +4,7 @@ require 'webrick'
 module Monastery
   class Flash
     def initialize(req)
-      session_cookie = req.cookies.find do |cookie|
-        cookie.name == cookie_name
-      end
+      session_cookie = req.cookies.find { |cookie| cookie.name == cookie_name }
       @stale_content = session_cookie ? JSON.parse(session_cookie.value) : {}
       @fresh_content = {}
     end
