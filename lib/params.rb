@@ -3,9 +3,8 @@ require 'uri'
 module Monastery
   class Params
     def initialize(req, route_params = {})
-      @params = route_params
-      parse_www_encoded_form(req.query_string.to_s)
-      parse_www_encoded_form(req.body.to_s)
+      other_params = parse_www_encoded_form("#{req.query_string}#{req.body}")
+      @params = route_params.merge(other_params)
     end
 
     def [](key)
@@ -21,17 +20,18 @@ module Monastery
     private
 
     def parse_www_encoded_form(www_encoded_form)
+      params = {}
       URI.decode_www_form(www_encoded_form).each do |key_val_pair|
         keys, value = parse_key(key_val_pair.first), key_val_pair.last
-        max_depth = keys.length - 1
-        nested = @params
+        nested = params
 
         keys.each_with_index do |key, depth|
-          break if depth == max_depth
+          break if depth == keys.length - 1
           nested = nested[key] ||= {}
         end
         nested[keys.last] = value
       end
+      params
     end
 
     def parse_key(key)
