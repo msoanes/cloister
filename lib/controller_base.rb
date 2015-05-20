@@ -10,16 +10,16 @@ module Monastery
   class ControllerBase
     attr_reader :req, :res, :params
 
+    def self.controller_name
+      /.+?(?=Controller$)/.match(name)[0].underscore
+    end
+
     def initialize(req, res, route_params = {})
       @req, @res, @params = req, res, Params.new(req, route_params)
     end
 
     def already_built_response?
       @already_built_response
-    end
-
-    def controller_name
-      self.class.name.underscore
     end
 
     def invoke_action(name)
@@ -34,6 +34,7 @@ module Monastery
     end
 
     def render(template_name)
+      controller_name = self.class.controller_name
       template_path = "views/#{controller_name}/#{template_name}.html.erb"
 
       template_string = File.read(template_path)
