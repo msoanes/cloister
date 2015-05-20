@@ -23,7 +23,9 @@ module Monastery
     end
 
     def invoke_action(name)
+      raise if already_built_response?
       send(name)
+      render unless already_built_response?
     end
 
     def redirect_to(url)
