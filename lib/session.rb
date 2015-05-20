@@ -19,7 +19,7 @@ module Monastery
     end
 
     def cookie_name
-      '_rails_lite_app'
+      '_monastery_app'
     end
 
     def store_session(res)
