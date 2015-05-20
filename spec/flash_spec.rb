@@ -64,6 +64,50 @@ describe Monastery::Flash do
         expect(h['machine']).to be_nil
       end
     end
+  end
+end
 
+describe Monastery::ControllerBase do
+  before(:all) do
+    class CatsController < Monastery::ControllerBase
+    end
+  end
+  after(:all) { Object.send(:remove_const, "CatsController") }
+
+  let(:req) { WEBrick::HTTPRequest.new(Logger: nil) }
+  let(:res) { WEBrick::HTTPResponse.new(HTTPVersion: '1.0') }
+  let(:cats_controller) { CatsController.new(req, res) }
+
+  describe "#flash" do
+    it "returns a flash instance" do
+      expect(cats_controller.flash).to be_a(Monastery::Flash)
+    end
+
+    it "returns the same instance on successive invocations" do
+      first_result = cats_controller.flash
+      expect(cats_controller.flash).to be(first_result)
+    end
+  end
+
+  shared_examples_for "storing flash data" do
+    it "should store the flash data" do
+      cats_controller.flash['test_key'] = 'test_value'
+      cats_controller.send(method, *args)
+      cookie = res.cookies.find { |c| c.name == '_monastery_flash' }
+      h = JSON.parse(cookie.value)
+      expect(h['test_key']).to eq('test_value')
+    end
+  end
+
+  describe "#render_content" do
+    let(:method) { :render_content }
+    let(:args) { ['test', 'text/plain'] }
+    include_examples "storing flash data"
+  end
+
+  describe "#redirect_to" do
+    let(:method) { :redirect_to }
+    let(:args) { ['http://appacademy.io'] }
+    include_examples "storing flash data"
   end
 end

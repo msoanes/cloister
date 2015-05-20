@@ -4,6 +4,7 @@ require 'active_support/core_ext'
 
 require_relative 'params'
 require_relative 'session'
+require_relative 'flash'
 
 module Monastery
   class ControllerBase
@@ -46,10 +47,15 @@ module Monastery
       res.content_type = content_type
       @already_built_response = true
       session.store_session(res)
+      flash.store_flash(res)
     end
 
     def session
       @session ||= Session.new(req)
+    end
+
+    def flash
+      @flash ||= Flash.new(req)
     end
   end
 end
