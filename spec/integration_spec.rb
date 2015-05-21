@@ -29,7 +29,7 @@ describe "the symphony of things" do
       route = Monastery::Route.new(Regexp.new("^/statuses/(?<id>\\d+)$"), :get, Ctrlr, :route_render)
       allow(req).to receive(:path) { "/statuses/1" }
       allow(req).to receive(:request_method) { :get }
-      route.run(req, res)
+      route.run(req, res, {})
       expect(res.body).to eq("testing")
     end
 
@@ -37,7 +37,7 @@ describe "the symphony of things" do
       route = Monastery::Route.new(Regexp.new("^/statuses/(?<id>\\d+)$"), :get, Ctrlr, :route_does_params)
       allow(req).to receive(:path) { "/statuses/1" }
       allow(req).to receive(:request_method) { :get }
-      route.run(req, res)
+      route.run(req, res, {})
       expect(res.body).to eq("got #1")
     end
   end
