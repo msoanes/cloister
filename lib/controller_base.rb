@@ -10,12 +10,27 @@ module Monastery
   class ControllerBase
     attr_reader :req, :res, :params
 
+
     def self.controller_name
-      /.+?(?=Controller$)/.match(name)[0].underscore
+      thing = /.+?(?=Controller$)/.match(name) || ['basic']
+      thing[0]
     end
 
-    def initialize(req, res, route_params = {})
+    def initialize(req, res, route_params = {}, named_paths = {})
       @req, @res, @params = req, res, Params.new(req, route_params)
+      @named_paths = named_paths
+    end
+
+    def method_missing(method_name, *args, &prc)
+      if method_name.to_s[-5..-1] == '_path'
+        find_path(method_name.to_s[0...-5], *args)
+      else
+        super
+      end
+    end
+
+    def already_built_response?
+      @already_built_response
     end
 
     def button_to(text, uri, options = nil)
@@ -28,8 +43,10 @@ module Monastery
 
     end
 
-    def already_built_response?
-      @already_built_response
+    def find_path(path_name, *args)
+      named_paths[path_name]
+      parts = named_paths.split('/')
+      parts.map { |part| part.gsub(/:(.+)[\/]{,1}/, args.shift) }
     end
 
     def invoke_action(name)
@@ -46,7 +63,7 @@ module Monastery
       res.status = 302
       res.header["location"] = url
       render_content("", 'text/html')
-      flash.store_flash
+      flash.store_flash(res)
       session.store_session(res)
       @already_built_response = true
     end

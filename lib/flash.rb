@@ -26,6 +26,8 @@ module Monastery
     end
 
     def store_flash(res)
+      cookie = WEBrick::Cookie.new(cookie_name, @fresh_content.to_json)
+      cookie.path = '/'
       res.cookies << WEBrick::Cookie.new(cookie_name, @fresh_content.to_json)
     end
   end

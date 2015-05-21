@@ -51,7 +51,7 @@ describe Monastery::Route do
       end
       expect(dummy_controller_instance).to receive(:invoke_action)
       index_route = Monastery::Route.new(Regexp.new("^/users$"), :get, dummy_controller_class, :index)
-      index_route.run(req, res)
+      index_route.run(req, res, {})
     end
   end
 end
@@ -59,20 +59,21 @@ end
 describe Monastery::Router do
   let(:req) { WEBrick::HTTPRequest.new(Logger: nil) }
   let(:res) { WEBrick::HTTPResponse.new(HTTPVersion: '1.0') }
+  let(:cont) { Monastery::ControllerBase }
 
   describe "#add_route" do
     it "adds a route" do
-      subject.add_route(1, 2, 3, 4)
+      subject.add_route('1', 2, cont, 4)
       expect(subject.routes.count).to eq(1)
-      subject.add_route(1, 2, 3, 4)
-      subject.add_route(1, 2, 3, 4)
+      subject.add_route('1', 2, cont, 4)
+      subject.add_route('1', 2, cont, 4)
       expect(subject.routes.count).to eq(3)
     end
   end
 
   describe "#match" do
     it "matches a correct route" do
-      subject.add_route(Regexp.new("^/users$"), :get, :x, :x)
+      subject.add_route("users", :get, cont, :x)
       allow(req).to receive(:path) { "/users" }
       allow(req).to receive(:request_method) { :get }
       matched = subject.match(req)
@@ -80,7 +81,7 @@ describe Monastery::Router do
     end
 
     it "doesn't match an incorrect route" do
-      subject.add_route(Regexp.new("^/users$"), :get, :x, :x)
+      subject.add_route('users', :get, cont, :x)
       allow(req).to receive(:path) { "/incorrect_path" }
       allow(req).to receive(:request_method) { :get }
       matched = subject.match(req)
@@ -90,7 +91,7 @@ describe Monastery::Router do
 
   describe "#run" do
     it "sets status to 404 if no route is found" do
-      subject.add_route(Regexp.new("^/users$"), :get, :x, :x)
+      subject.add_route('users$', :get, cont, :x)
       allow(req).to receive(:path).and_return("/incorrect_path")
       allow(req).to receive(:request_method).and_return("GET")
       subject.run(req, res)
@@ -109,7 +110,7 @@ describe Monastery::Router do
 
     it "adds a route when an http method method is called" do
       router = Monastery::Router.new
-      router.get Regexp.new("^/users$"), Monastery::ControllerBase, :index
+      router.get 'users', Monastery::ControllerBase, :index
       expect(router.routes.count).to eq(1)
     end
   end

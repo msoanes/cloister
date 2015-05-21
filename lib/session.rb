@@ -23,6 +23,8 @@ module Monastery
     end
 
     def store_session(res)
+      cookie = WEBrick::Cookie.new(cookie_name, @content.to_json)
+      cookie.path = '/'
       res.cookies << WEBrick::Cookie.new(cookie_name, @content.to_json)
     end
   end

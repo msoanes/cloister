@@ -21,6 +21,7 @@ $statuses = [
 
 class StatusesController < Monastery::ControllerBase
   def index
+    p params
     statuses = $statuses.select do |s|
       s[:cat_id] == Integer(params[:cat_id])
     end
@@ -37,8 +38,8 @@ end
 
 router = Monastery::Router.new
 router.draw do
-  get Regexp.new("^/cats$"), Cats2Controller, :index
-  get Regexp.new("^/cats/(?<cat_id>\\d+)/statuses$"), StatusesController, :index
+  get 'cats', Cats2Controller, :index
+  get 'cats/:cat_id/statuses', StatusesController, :index
 end
 
 server = WEBrick::HTTPServer.new(Port: 3000)
